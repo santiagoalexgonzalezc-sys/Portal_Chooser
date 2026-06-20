@@ -24,6 +24,7 @@ class PortalSequenceGame {
         this.nextStep();
     }
 
+    // 🎮 STEP SYSTEM
     nextStep() {
         if (!this.active) return;
 
@@ -34,15 +35,31 @@ class PortalSequenceGame {
 
         this.locked = false;
 
-        this.portalCount = this.rand(3, 6);
-        this.correctIndex = this.rand(0, this.portalCount - 1);
+        this.warpTransition(() => {
+            this.portalCount = this.rand(3, 6);
+            this.correctIndex = this.rand(0, this.portalCount - 1);
 
-        this.renderPortals();
-        this.updateHUD();
+            this.renderPortals();
+            this.updateHUD();
 
-        this.resultText.innerHTML = "";
+            this.resultText.innerHTML = "";
+        });
     }
 
+    // 🌌 TELEPORT EFFECT
+    warpTransition(callback) {
+        document.body.classList.add("warp");
+        document.body.classList.add("warp-flash");
+
+        setTimeout(() => {
+            document.body.classList.remove("warp");
+            document.body.classList.remove("warp-flash");
+
+            if (callback) callback();
+        }, 500);
+    }
+
+    // 🎨 PORTALS
     renderPortals() {
         this.portalArea.innerHTML = "";
 
@@ -57,6 +74,7 @@ class PortalSequenceGame {
         }
     }
 
+    // 🎯 INPUT
     choosePortal(index) {
         if (this.locked || !this.active) return;
 
@@ -78,6 +96,7 @@ class PortalSequenceGame {
         document.querySelectorAll(".portal").forEach(p => p.disabled = true);
     }
 
+    // ✅ SUCCESS
     handleSuccess() {
         this.streak++;
         this.step++;
@@ -87,6 +106,7 @@ class PortalSequenceGame {
         setTimeout(() => this.nextStep(), 500);
     }
 
+    // ❌ FAIL
     handleFail() {
         this.resultText.innerHTML = "❌ Wrong portal! Run failed.";
 
@@ -96,6 +116,7 @@ class PortalSequenceGame {
         this.endRun(false);
     }
 
+    // 🏁 END RUN
     endRun(completed) {
         this.active = false;
         this.locked = true;
@@ -124,15 +145,7 @@ class PortalSequenceGame {
         this.nextStep();
     }
 
-    rewardText(title) {
-        return `
-            ${title}<br><br>
-            🪙 Ore: <b>${this.reward.ore}</b><br>
-            ⭐ Rarity: <b>${this.reward.rarity}</b><br>
-            🥚 Pet Egg Chance: <b>${this.reward.petEggChance ? "YES" : "NO"}</b>
-        `;
-    }
-
+    // 💰 REWARDS
     applyRewards() {
         const s = this.streak;
 
@@ -155,11 +168,22 @@ class PortalSequenceGame {
         }
     }
 
+    rewardText(title) {
+        return `
+            ${title}<br><br>
+            🪙 Ore: <b>${this.reward.ore}</b><br>
+            ⭐ Rarity: <b>${this.reward.rarity}</b><br>
+            🥚 Pet Egg Chance: <b>${this.reward.petEggChance ? "YES" : "NO"}</b>
+        `;
+    }
+
+    // 📊 HUD
     updateHUD() {
         this.stepText.textContent = this.step;
         this.streakText.textContent = this.streak;
     }
 
+    // 🌋 SHAKE
     shakeScreen() {
         document.body.classList.add("shake");
 
