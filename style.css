@@ -17,7 +17,7 @@ body {
     backdrop-filter: blur(10px);
 }
 
-/* Portal layout */
+/* PORTALS */
 #portalArea {
     display: flex;
     gap: 15px;
@@ -26,7 +26,6 @@ body {
     margin-top: 20px;
 }
 
-/* 🌌 PORTALS */
 .portal {
     width: 120px;
     height: 120px;
@@ -50,14 +49,12 @@ body {
     animation: portalIdle 2.5s infinite ease-in-out;
 }
 
-/* floating animation */
 @keyframes portalIdle {
     0% { transform: translateY(0px) scale(1); }
     50% { transform: translateY(-3px) scale(1.02); }
     100% { transform: translateY(0px) scale(1); }
 }
 
-/* hover glow */
 .portal:hover {
     transform: scale(1.1);
     box-shadow:
@@ -65,7 +62,6 @@ body {
         0 0 60px rgba(138, 43, 226, 0.3);
 }
 
-/* shimmer effect */
 .portal::before {
     content: "";
     position: absolute;
@@ -88,7 +84,15 @@ body {
     100% { transform: translateX(100%) rotate(25deg); }
 }
 
-/* feedback states */
+/* RESULT */
+#result {
+    margin-top: 25px;
+    font-size: 18px;
+    min-height: 30px;
+    opacity: 0.9;
+}
+
+/* CORRECT / WRONG */
 .portal.correct {
     box-shadow: 0 0 30px lime, 0 0 60px rgba(0,255,0,0.3);
     transform: scale(1.15);
@@ -98,14 +102,6 @@ body {
     box-shadow: 0 0 30px red, 0 0 60px rgba(255,0,0,0.3);
     transform: scale(0.95);
     opacity: 0.7;
-}
-
-/* result text */
-#result {
-    margin-top: 25px;
-    font-size: 18px;
-    min-height: 30px;
-    opacity: 0.9;
 }
 
 /* 🔥 SCREEN SHAKE */
@@ -120,4 +116,44 @@ body {
 
 .shake {
     animation: shake 0.35s ease;
+}
+
+/* 🌌 TELEPORT WARP */
+@keyframes warpOut {
+    0% {
+        filter: blur(0px) brightness(1);
+        transform: scale(1);
+    }
+    50% {
+        filter: blur(6px) brightness(1.5);
+        transform: scale(1.05);
+    }
+    100% {
+        filter: blur(0px) brightness(1);
+        transform: scale(1);
+    }
+}
+
+.warp {
+    animation: warpOut 0.5s ease;
+}
+
+/* flash overlay */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, rgba(138,43,226,0.15), transparent 60%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.warp-flash::after {
+    animation: flash 0.5s ease;
+}
+
+@keyframes flash {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    100% { opacity: 0; }
 }
