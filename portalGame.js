@@ -9,7 +9,6 @@ class PortalSequenceGame {
 
         this.portalCount = 0;
         this.correctIndex = 0;
-        this.rule = "even";
 
         this.reward = {
             ore: 0,
@@ -25,7 +24,6 @@ class PortalSequenceGame {
         this.nextStep();
     }
 
-    // 🎮 STEP
     nextStep() {
         if (!this.active) return;
 
@@ -37,51 +35,20 @@ class PortalSequenceGame {
         this.locked = false;
 
         this.portalCount = this.rand(3, 6);
-        this.rule = this.pickRule();
-
-        this.correctIndex = this.computeCorrectIndex();
+        this.correctIndex = this.rand(0, this.portalCount - 1);
 
         this.renderPortals();
-        this.updateHUD(); // FIX: always sync UI
+        this.updateHUD();
+
+        this.resultText.innerHTML = "";
     }
 
-    // 🎲 RULES (kept simple but safe)
-    pickRule() {
-        const rules = ["even", "odd", "lowest", "highest", "random"];
-        return rules[this.rand(0, rules.length - 1)];
-    }
-
-    computeCorrectIndex() {
-        const max = this.portalCount - 1;
-
-        switch (this.rule) {
-
-            case "even":
-                return this.rand(0, Math.floor(max / 2)) * 2;
-
-            case "odd":
-                return this.rand(0, Math.floor(max / 2)) * 2 + 1;
-
-            case "lowest":
-                return 0;
-
-            case "highest":
-                return max;
-
-            case "random":
-                return this.rand(0, max); // FIX: fallback safe rule
-        }
-
-        return 0;
-    }
-
-    // 🎨 UI
     renderPortals() {
         this.portalArea.innerHTML = "";
 
         for (let i = 0; i < this.portalCount; i++) {
             const btn = document.createElement("button");
-            btn.className = "portal fade";
+            btn.className = "portal";
             btn.innerText = `Portal ${i + 1}`;
 
             btn.onclick = () => this.choosePortal(i);
@@ -90,16 +57,19 @@ class PortalSequenceGame {
         }
     }
 
-    // 🎯 INPUT
     choosePortal(index) {
         if (this.locked || !this.active) return;
 
         this.locked = true;
         this.disableAll();
 
+        const buttons = document.querySelectorAll(".portal");
+
         if (index === this.correctIndex) {
+            buttons[index].classList.add("correct");
             this.handleSuccess();
         } else {
+            buttons[index].classList.add("wrong");
             this.handleFail();
         }
     }
@@ -108,7 +78,6 @@ class PortalSequenceGame {
         document.querySelectorAll(".portal").forEach(p => p.disabled = true);
     }
 
-    // ✅ SUCCESS
     handleSuccess() {
         this.streak++;
         this.step++;
@@ -118,22 +87,21 @@ class PortalSequenceGame {
         setTimeout(() => this.nextStep(), 500);
     }
 
-    // ❌ FAIL
     handleFail() {
         this.resultText.innerHTML = "❌ Wrong portal! Run failed.";
 
-        this.applyRewards();
+        this.shakeScreen();
 
+        this.applyRewards();
         this.endRun(false);
     }
 
-    // 🏁 END RUN (FIXED SAFE FLOW)
     endRun(completed) {
         this.active = false;
         this.locked = true;
 
         this.disableAll();
-        this.updateHUD(); // FIX: force sync
+        this.updateHUD();
 
         this.resultText.innerHTML = completed
             ? this.rewardText("🎉 Run Complete!")
@@ -153,8 +121,6 @@ class PortalSequenceGame {
         this.active = true;
         this.locked = false;
 
-        this.resultText.innerHTML = "";
-
         this.nextStep();
     }
 
@@ -167,9 +133,8 @@ class PortalSequenceGame {
         `;
     }
 
-    // 💰 REWARDS (safe order)
     applyRewards() {
-        const s = this.streak; // FIX: snapshot first
+        const s = this.streak;
 
         if (s <= 2) {
             this.reward.ore += 10;
@@ -190,10 +155,17 @@ class PortalSequenceGame {
         }
     }
 
-    // 📊 HUD
     updateHUD() {
         this.stepText.textContent = this.step;
         this.streakText.textContent = this.streak;
+    }
+
+    shakeScreen() {
+        document.body.classList.add("shake");
+
+        setTimeout(() => {
+            document.body.classList.remove("shake");
+        }, 350);
     }
 
     rand(min, max) {
