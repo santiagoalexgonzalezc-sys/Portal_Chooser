@@ -4,9 +4,12 @@ class PortalSequenceGame {
         this.streak = 0;
         this.maxSteps = 10;
 
-        this.correctIndex = 0;
         this.locked = false;
         this.active = true;
+
+        this.portalCount = 0;
+        this.correctIndex = 0;
+        this.rule = "even";
 
         this.reward = {
             ore: 0,
@@ -22,6 +25,7 @@ class PortalSequenceGame {
         this.nextStep();
     }
 
+    // 🎮 STEP
     nextStep() {
         if (!this.active) return;
 
@@ -31,20 +35,51 @@ class PortalSequenceGame {
         }
 
         this.locked = false;
-        this.updateHUD();
 
-        this.resultText.innerHTML = "";
+        this.portalCount = this.rand(3, 6);
+        this.rule = this.pickRule();
 
-        const portalCount = this.rand(3, 6);
-        this.correctIndex = this.rand(0, portalCount - 1);
+        this.correctIndex = this.computeCorrectIndex();
 
-        this.renderPortals(portalCount);
+        this.renderPortals();
+        this.updateHUD(); // FIX: always sync UI
     }
 
-    renderPortals(count) {
+    // 🎲 RULES (kept simple but safe)
+    pickRule() {
+        const rules = ["even", "odd", "lowest", "highest", "random"];
+        return rules[this.rand(0, rules.length - 1)];
+    }
+
+    computeCorrectIndex() {
+        const max = this.portalCount - 1;
+
+        switch (this.rule) {
+
+            case "even":
+                return this.rand(0, Math.floor(max / 2)) * 2;
+
+            case "odd":
+                return this.rand(0, Math.floor(max / 2)) * 2 + 1;
+
+            case "lowest":
+                return 0;
+
+            case "highest":
+                return max;
+
+            case "random":
+                return this.rand(0, max); // FIX: fallback safe rule
+        }
+
+        return 0;
+    }
+
+    // 🎨 UI
+    renderPortals() {
         this.portalArea.innerHTML = "";
 
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < this.portalCount; i++) {
             const btn = document.createElement("button");
             btn.className = "portal fade";
             btn.innerText = `Portal ${i + 1}`;
@@ -55,6 +90,7 @@ class PortalSequenceGame {
         }
     }
 
+    // 🎯 INPUT
     choosePortal(index) {
         if (this.locked || !this.active) return;
 
@@ -64,7 +100,7 @@ class PortalSequenceGame {
         if (index === this.correctIndex) {
             this.handleSuccess();
         } else {
-            this.handleFail(index);
+            this.handleFail();
         }
     }
 
@@ -72,43 +108,43 @@ class PortalSequenceGame {
         document.querySelectorAll(".portal").forEach(p => p.disabled = true);
     }
 
+    // ✅ SUCCESS
     handleSuccess() {
         this.streak++;
         this.step++;
 
         this.resultText.innerHTML = "✅ Correct portal!";
 
-        setTimeout(() => this.nextStep(), 600);
+        setTimeout(() => this.nextStep(), 500);
     }
 
-    handleFail(index) {
+    // ❌ FAIL
+    handleFail() {
         this.resultText.innerHTML = "❌ Wrong portal! Run failed.";
 
-        // apply BEFORE reset (safe)
         this.applyRewards();
 
         this.endRun(false);
     }
 
-    finishGame() {
-        this.applyRewards();
-        this.endRun(true);
-    }
-
+    // 🏁 END RUN (FIXED SAFE FLOW)
     endRun(completed) {
         this.active = false;
         this.locked = true;
 
         this.disableAll();
+        this.updateHUD(); // FIX: force sync
 
         this.resultText.innerHTML = completed
-            ? this.getRewardText("🎉 Run Complete!")
-            : this.getRewardText("💥 Run Failed!");
+            ? this.rewardText("🎉 Run Complete!")
+            : this.rewardText("💥 Run Failed!");
 
-        // reset AFTER showing result (safe delay)
-        setTimeout(() => {
-            this.resetGame();
-        }, 1500);
+        setTimeout(() => this.resetGame(), 1200);
+    }
+
+    finishGame() {
+        this.applyRewards();
+        this.endRun(true);
     }
 
     resetGame() {
@@ -117,10 +153,12 @@ class PortalSequenceGame {
         this.active = true;
         this.locked = false;
 
+        this.resultText.innerHTML = "";
+
         this.nextStep();
     }
 
-    getRewardText(title) {
+    rewardText(title) {
         return `
             ${title}<br><br>
             🪙 Ore: <b>${this.reward.ore}</b><br>
@@ -129,8 +167,9 @@ class PortalSequenceGame {
         `;
     }
 
+    // 💰 REWARDS (safe order)
     applyRewards() {
-        const s = this.streak;
+        const s = this.streak; // FIX: snapshot first
 
         if (s <= 2) {
             this.reward.ore += 10;
@@ -151,6 +190,7 @@ class PortalSequenceGame {
         }
     }
 
+    // 📊 HUD
     updateHUD() {
         this.stepText.textContent = this.step;
         this.streakText.textContent = this.streak;
