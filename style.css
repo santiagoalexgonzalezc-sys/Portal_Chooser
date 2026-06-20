@@ -7,10 +7,7 @@ body {
     padding: 30px;
 }
 
-h1 {
-    margin-bottom: 10px;
-}
-
+/* HUD */
 #hud {
     background: rgba(255,255,255,0.05);
     padding: 12px 20px;
@@ -20,6 +17,7 @@ h1 {
     backdrop-filter: blur(10px);
 }
 
+/* Portal layout */
 #portalArea {
     display: flex;
     gap: 15px;
@@ -28,6 +26,7 @@ h1 {
     margin-top: 20px;
 }
 
+/* 🌌 PORTALS */
 .portal {
     width: 120px;
     height: 120px;
@@ -35,25 +34,73 @@ h1 {
     border: none;
     cursor: pointer;
 
-    background: linear-gradient(145deg, #6a0dad, #3b0a57);
     color: white;
     font-size: 16px;
 
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-    transition: all 0.2s ease;
+    background: radial-gradient(circle at top, #7a1fff, #2b0a45);
+
+    box-shadow:
+        0 0 10px rgba(138, 43, 226, 0.3),
+        inset 0 0 20px rgba(255,255,255,0.05);
+
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    animation: portalIdle 2.5s infinite ease-in-out;
 }
 
+/* floating animation */
+@keyframes portalIdle {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-3px) scale(1.02); }
+    100% { transform: translateY(0px) scale(1); }
+}
+
+/* hover glow */
 .portal:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px rgba(186, 85, 211, 0.6);
+    transform: scale(1.1);
+    box-shadow:
+        0 0 25px rgba(186, 85, 211, 0.7),
+        0 0 60px rgba(138, 43, 226, 0.3);
 }
 
-.portal:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
+/* shimmer effect */
+.portal::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.15),
+        transparent
+    );
+    transform: rotate(25deg);
+    animation: shine 3s infinite linear;
 }
 
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(25deg); }
+    100% { transform: translateX(100%) rotate(25deg); }
+}
+
+/* feedback states */
+.portal.correct {
+    box-shadow: 0 0 30px lime, 0 0 60px rgba(0,255,0,0.3);
+    transform: scale(1.15);
+}
+
+.portal.wrong {
+    box-shadow: 0 0 30px red, 0 0 60px rgba(255,0,0,0.3);
+    transform: scale(0.95);
+    opacity: 0.7;
+}
+
+/* result text */
 #result {
     margin-top: 25px;
     font-size: 18px;
@@ -61,11 +108,16 @@ h1 {
     opacity: 0.9;
 }
 
-.fade {
-    animation: fade 0.3s ease;
+/* 🔥 SCREEN SHAKE */
+@keyframes shake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 3px); }
+    40% { transform: translate(6px, -3px); }
+    60% { transform: translate(-6px, -3px); }
+    80% { transform: translate(6px, 3px); }
+    100% { transform: translate(0, 0); }
 }
 
-@keyframes fade {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.shake {
+    animation: shake 0.35s ease;
 }
