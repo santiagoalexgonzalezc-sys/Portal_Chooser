@@ -1,13 +1,11 @@
 class PortalSequenceGame {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-
+    constructor() {
         this.step = 1;
         this.streak = 0;
         this.maxSteps = 10;
 
-        this.portals = [];
         this.correctIndex = 0;
+        this.locked = false; // 🚫 prevents spam clicks
 
         this.reward = {
             ore: 0,
@@ -15,25 +13,12 @@ class PortalSequenceGame {
             petEggChance: false
         };
 
-        this.initUI();
+        this.portalArea = document.getElementById("portalArea");
+        this.stepText = document.getElementById("stepText");
+        this.streakText = document.getElementById("streakText");
+        this.resultText = document.getElementById("result");
+
         this.nextStep();
-    }
-
-    initUI() {
-        this.container.innerHTML = `
-            <div id="portalHUD">
-                <h2>🌀 Portal Challenge</h2>
-                <p>Step: <span id="stepText"></span></p>
-                <p>Streak: <span id="streakText"></span></p>
-            </div>
-            <div id="portalArea"></div>
-            <div id="result"></div>
-        `;
-
-        this.portalArea = this.container.querySelector("#portalArea");
-        this.stepText = this.container.querySelector("#stepText");
-        this.streakText = this.container.querySelector("#streakText");
-        this.resultText = this.container.querySelector("#result");
     }
 
     nextStep() {
@@ -42,6 +27,8 @@ class PortalSequenceGame {
             return;
         }
 
+        this.locked = false;
+
         this.resultText.innerHTML = "";
 
         const portalCount = this.rand(3, 6);
@@ -49,45 +36,55 @@ class PortalSequenceGame {
 
         this.renderPortals(portalCount);
 
-        this.stepText.textContent = this.step;
-        this.streakText.textContent = this.streak;
+        this.updateHUD();
     }
 
     renderPortals(count) {
         this.portalArea.innerHTML = "";
-        this.portals = [];
 
         for (let i = 0; i < count; i++) {
-            const portal = document.createElement("button");
-            portal.className = "portal";
-            portal.innerText = `Portal ${i + 1}`;
+            const btn = document.createElement("button");
+            btn.className = "portal fade";
+            btn.innerText = `Portal ${i + 1}`;
 
-            portal.onclick = () => this.choosePortal(i);
+            btn.onclick = () => this.choosePortal(i, btn);
 
-            this.portalArea.appendChild(portal);
-            this.portals.push(portal);
+            this.portalArea.appendChild(btn);
         }
     }
 
-    choosePortal(index) {
+    choosePortal(index, btn) {
+        if (this.locked) return; // 🚫 bug fix: prevents double clicks
+
+        this.locked = true;
+
+        this.disableAll();
+
         if (index === this.correctIndex) {
+            btn.style.background = "linear-gradient(145deg, #00c853, #007e33)";
             this.handleSuccess();
         } else {
+            btn.style.background = "linear-gradient(145deg, #d50000, #7f0000)";
             this.handleFail();
         }
+    }
+
+    disableAll() {
+        document.querySelectorAll(".portal").forEach(p => p.disabled = true);
     }
 
     handleSuccess() {
         this.streak++;
         this.step++;
 
-        this.resultText.innerHTML = "✅ Correct portal! Moving forward...";
+        this.resultText.innerHTML = "✅ Correct portal!";
+        this.resultText.classList.add("fade");
 
-        setTimeout(() => this.nextStep(), 800);
+        setTimeout(() => this.nextStep(), 700);
     }
 
     handleFail() {
-        this.resultText.innerHTML = "❌ Wrong portal! Streak reset.";
+        this.resultText.innerHTML = "❌ Wrong portal! Run failed.";
 
         this.applyRewards();
         this.resetGame();
@@ -104,10 +101,10 @@ class PortalSequenceGame {
         this.applyRewards();
 
         this.resultText.innerHTML = `
-            🎉 Completed Portal Run!<br>
-            🪙 Ore: ${this.reward.ore}<br>
-            ⭐ Rarity: ${this.reward.rarity}<br>
-            🥚 Pet Egg Chance: ${this.reward.petEggChance ? "YES" : "NO"}
+            🎉 Run Complete!<br><br>
+            🪙 Ore: <b>${this.reward.ore}</b><br>
+            ⭐ Rarity: <b>${this.reward.rarity}</b><br>
+            🥚 Pet Egg Chance: <b>${this.reward.petEggChance ? "YES" : "NO"}</b>
         `;
 
         this.step = 1;
@@ -136,7 +133,15 @@ class PortalSequenceGame {
         }
     }
 
+    updateHUD() {
+        this.stepText.textContent = this.step;
+        this.streakText.textContent = this.streak;
+    }
+
     rand(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
+
+// start
+new PortalSequenceGame();
