@@ -1,25 +1,71 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #1a1a2e, #0f0f1a);
+    color: white;
+    text-align: center;
+    padding: 30px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#hud {
+    background: rgba(255,255,255,0.05);
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
 #portalArea {
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
     margin-top: 20px;
 }
 
 .portal {
-    padding: 20px;
-    background: purple;
-    color: white;
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
     border: none;
     cursor: pointer;
-    border-radius: 10px;
-    transition: 0.2s;
+
+    background: linear-gradient(145deg, #6a0dad, #3b0a57);
+    color: white;
+    font-size: 16px;
+
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+    transition: all 0.2s ease;
 }
 
 .portal:hover {
-    transform: scale(1.05);
-    background: darkviolet;
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(186, 85, 211, 0.6);
+}
+
+.portal:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
 }
 
 #result {
-    margin-top: 20px;
+    margin-top: 25px;
     font-size: 18px;
+    min-height: 30px;
+    opacity: 0.9;
+}
+
+.fade {
+    animation: fade 0.3s ease;
+}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
