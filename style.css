@@ -1,0 +1,25 @@
+#portalArea {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.portal {
+    padding: 20px;
+    background: purple;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+.portal:hover {
+    transform: scale(1.05);
+    background: darkviolet;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+}
